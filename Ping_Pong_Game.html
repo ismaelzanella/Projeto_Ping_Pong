@@ -19,6 +19,7 @@
     const canvasCtx = canvasEl.getContext("2d")
     const linhaMeio = 15 //Espessura 
     const gapX = 10
+    const mouse = {x: 0, y: 0 }
 
     // Programação orientada a objeto
 
@@ -45,24 +46,32 @@
     // Raquete esquerda
     const raqueteEsq = {
       x: gapX,
-      y: 100,
+      y: 0,
       w: linha.w,
       h: 200,
+      _movimento: function(){
+        this.y = mouse.y - this.h / 2
+      },
       desenho: function() {
         canvasCtx.fillStyle = "#ffffff"
         canvasCtx.fillRect(this.x, this.y, this.w, this.h)
+        this._movimento()
       }
     }
 
     // Raquete direita
     const raqueteDir = {
       x: campo.w - gapX - linha.w,
-      y: 400,
+      y: 0,
       w: linha.w,
       h: 200,
+      _movimento: function(){
+        this.y = bola.y
+      },
       desenho: function() {
         canvasCtx.fillStyle = "#ffffff"
         canvasCtx.fillRect(this.x, this.y, this.w, this.h)
+        this._movimento()
       }
     }
 
@@ -85,11 +94,17 @@
       x: 200,
       y: 300,
       r: 20,
+      velocidade: 3,
+      _movimento: function () {
+        this.x += 1 * this.velocidade
+        this.y += 1 * this.velocidade
+      },
       desenho: function() {
       canvasCtx.fillStyle = "#ffffff"
       canvasCtx.beginPath()
       canvasCtx.arc(this.x, this.y, this.r, 0, 2 * Math.PI, false)
       canvasCtx.fill()
+      this._movimento()
       }
     }
 
@@ -105,13 +120,34 @@
       raqueteDir.desenho()
       placar.desenho()
       bola.desenho()
+    }
 
-      //Placar
+    window.animateFrame = (function () {
+      return (
+        window.requestAnimationFrame ||
+        window.webkitRequestAnimationFrame ||
+        window.mozRequestAnimationFrame ||
+        window.oRequestAnimationFrame ||
+        window.msRequestAnimationFrame ||
+        function (callback) {
+          return window.setTimeout(callback, 1000 / 60)
+        }
+      )
+    })()
 
+    function principal(){
+      animateFrame(principal)
+      desenho()
     }
 
     config()
-    desenho()
+    principal()
+
+    canvasEl.addEventListener("mousemove", function(e) {
+      mouse.x = e.pageX
+      mouse.y = e.pageY
+    })
+
   </script>
 </body>
 </html>
