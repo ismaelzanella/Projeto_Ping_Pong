@@ -94,16 +94,31 @@
       x: 200,
       y: 300,
       r: 20,
-      velocidade: 3,
+      velocidade: 5,
+      direcaoX: 1,
+      direcaoY: 1,
+      _calcposicao: function () {
+        if(this.y > campo.h - this.r) {
+          this._reverterY()
+        }
+      },
+      _reverterX: function () {
+        this.direcaoX *= -1
+      },
+      _reverterY: function () {
+        this.direcaoY *= -1
+      },
       _movimento: function () {
-        this.x += 1 * this.velocidade
-        this.y += 1 * this.velocidade
+        this.x += this.direcaoX * this.velocidade
+        this.y += this.direcaoY * this.velocidade
       },
       desenho: function() {
       canvasCtx.fillStyle = "#ffffff"
       canvasCtx.beginPath()
       canvasCtx.arc(this.x, this.y, this.r, 0, 2 * Math.PI, false)
       canvasCtx.fill()
+
+      this._calcposicao()
       this._movimento()
       }
     }
