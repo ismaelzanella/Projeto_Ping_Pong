@@ -60,8 +60,17 @@
       y: 0,
       w: linha.w,
       h: 200,
+      velocidade: 5,
       _movimento: function(){
-        this.y = bola.y
+        //this.y = bola.y (Antes)
+        if (this.y + this.h /2 < bola.y + bola.r) {
+          this.y += this.velocidade
+        } else {
+          this.y -= this.velocidade
+        }
+      },
+      _velocidadeUpRaq: function () {
+        this.velocidade += 2.5
       },
       desenho: function() {
         canvasCtx.fillStyle = "#ffffff"
@@ -90,25 +99,37 @@
     }
     // Bola
     const bola = {
-      x: 0,
-      y: 0,
+      x: 150,
+      y: 300,
       r: 20,
-      velocidade: 2,
-      direcaoX: 2,
-      direcaoY: 3,
+      velocidade: 7,
+      direcaoX: 1,
+      direcaoY: 1,
       _calcposicao: function () {
-        // Verifica se o jogador 1 fez um ponto (x > largura do campo)
+        // Verifica se o player fez um ponto (x > largura do campo - "Ajustes")
         if (this.x > campo.w - this.r - gapX - raqueteDir.w) {
           // Verifica se a raquete direita está na posição y da bola
           if (this.y + this.r > raqueteDir.y && this.y - this.r < raqueteDir.y + raqueteDir.h) {
             // Reverte em X
             this._reverterX()
           } else {
-            // pontua o jogador e reinicia
+            // Pontua o player e reinicia
             placar._pontoJogador()
             this._restart()
           }
         }
+        // Verifica se o CPU fez um ponto (x < 0 + "Ajustes") 
+        if (this.x < 0 + this.r + gapX + raqueteEsq.w) {
+          // Verifica se a raquete esquerda está na posição y da bola
+          if (this.y + this.r > raqueteEsq.y && this.y - this.r < raqueteEsq.y + raqueteEsq.h) {
+            // Reverte em X
+            this._reverterX()
+          } else {
+            // Pontua o CPU e reinicia
+            placar._pontoCpu()
+            this._restart()
+          }
+        }        
         // Rebatendo o chão e o teto
         if(
           (this.y - this.r < 0 && this.direcaoY < 0) || (this.y > campo.h - this.r && this.direcaoY > 0)
@@ -122,11 +143,16 @@
       _reverterY: function () {
         this.direcaoY *= -1
       },
+      // Aumenta a velocidade a cada ponto e acrescenta no "_restart()"
+      _velocidadeUpBola: function () {
+        this.velocidade += 3
+      },      
       // Reinicia a partida no meio do campo
       _restart: function () {
+        this._velocidadeUpBola()
+        raqueteDir._velocidadeUpRaq()
         this.x = campo.w / 2
         this.y = campo.h / 2
-
       },
       _movimento: function () {
         this.x += this.direcaoX * this.velocidade
@@ -142,6 +168,15 @@
       this._movimento()
       }
     }
+    const assinatura = {
+      desenho: function() {
+      canvasCtx.font = "bold 20px Brush Script MT, Brush Script Std, cursive"
+      canvasCtx.textAlign = "center"
+      canvasCtx.textBaseline = "top"
+      canvasCtx.fillStyle = "#ffffff"
+      canvasCtx.fillText("Ismael Zanella", campo.w - 80, campo.h - 30)
+      }
+    }
     function config() {
       canvasEl.width = canvasCtx.width = campo.w
       canvasEl.height = canvasCtx.height = campo.h
@@ -153,6 +188,7 @@
       raqueteDir.desenho()
       placar.desenho()
       bola.desenho()
+      assinatura.desenho()
     }
     window.animateFrame = (function () {
       return (
