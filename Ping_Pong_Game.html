@@ -20,9 +20,7 @@
     const linhaMeio = 15 //Espessura 
     const gapX = 10
     const mouse = {x: 0, y: 0 }
-
     // Programação orientada a objeto
-
     // Campo
     const campo = {
       w: window.innerWidth,
@@ -32,7 +30,6 @@
       canvasCtx.fillRect(0, 0, this.w, this.h)
       }
     }
-
     // Linha do meio
     const linha = {
       w: 15,
@@ -42,7 +39,6 @@
         canvasCtx.fillRect(campo.w / 2 - this.w / 2, 0, this.w, campo.h)
       }
     }
-
     // Raquete esquerda
     const raqueteEsq = {
       x: gapX,
@@ -58,7 +54,6 @@
         this._movimento()
       }
     }
-
     // Raquete direita
     const raqueteDir = {
       x: campo.w - gapX - linha.w,
@@ -74,12 +69,17 @@
         this._movimento()
       }
     }
-
     //Placar
     const placar = {
-      jogador: 1,
+      jogador: 0,
       cpu: 0,
-      desenho: function() {
+      _pontoJogador: function(){
+        this.jogador++
+      },
+      _pontoCpu: function(){
+        this.cpu++
+      },
+      desenho: function () {
       canvasCtx.font = "bold 72px Arial"
       canvasCtx.textAlign = "center"
       canvasCtx.textBaseline = "top"
@@ -88,17 +88,31 @@
       canvasCtx.fillText(this.cpu, campo.w / 4 + campo.w / 2, 50)
       }
     }
-
     // Bola
     const bola = {
-      x: 200,
-      y: 300,
+      x: 0,
+      y: 0,
       r: 20,
-      velocidade: 5,
-      direcaoX: 1,
-      direcaoY: 1,
+      velocidade: 2,
+      direcaoX: 2,
+      direcaoY: 3,
       _calcposicao: function () {
-        if(this.y > campo.h - this.r) {
+        // Verifica se o jogador 1 fez um ponto (x > largura do campo)
+        if (this.x > campo.w - this.r - gapX - raqueteDir.w) {
+          // Verifica se a raquete direita está na posição y da bola
+          if (this.y + this.r > raqueteDir.y && this.y - this.r < raqueteDir.y + raqueteDir.h) {
+            // Reverte em X
+            this._reverterX()
+          } else {
+            // pontua o jogador e reinicia
+            placar._pontoJogador()
+            this._restart()
+          }
+        }
+        // Rebatendo o chão e o teto
+        if(
+          (this.y - this.r < 0 && this.direcaoY < 0) || (this.y > campo.h - this.r && this.direcaoY > 0)
+          ) {
           this._reverterY()
         }
       },
@@ -107,6 +121,12 @@
       },
       _reverterY: function () {
         this.direcaoY *= -1
+      },
+      // Reinicia a partida no meio do campo
+      _restart: function () {
+        this.x = campo.w / 2
+        this.y = campo.h / 2
+
       },
       _movimento: function () {
         this.x += this.direcaoX * this.velocidade
@@ -122,12 +142,10 @@
       this._movimento()
       }
     }
-
     function config() {
       canvasEl.width = canvasCtx.width = campo.w
       canvasEl.height = canvasCtx.height = campo.h
     }
-
     function desenho() {
       campo.desenho()
       linha.desenho()
@@ -136,7 +154,6 @@
       placar.desenho()
       bola.desenho()
     }
-
     window.animateFrame = (function () {
       return (
         window.requestAnimationFrame ||
@@ -149,20 +166,16 @@
         }
       )
     })()
-
     function principal(){
       animateFrame(principal)
       desenho()
     }
-
     config()
     principal()
-
     canvasEl.addEventListener("mousemove", function(e) {
       mouse.x = e.pageX
       mouse.y = e.pageY
     })
-
   </script>
 </body>
 </html>
